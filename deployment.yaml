@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: breakremainder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: breakremainder
+  template:
+    metadata:
+      labels:
+        app: breakremainder
+    spec:
+      containers:
+      - name: breakremainder
+        image: pravallikas029/breakremainder:latest
+        ports:
+        - containerPort: 80
