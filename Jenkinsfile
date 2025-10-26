@@ -31,7 +31,7 @@ pipeline {
                 bat '''
                     docker stop breakremainder || echo "No existing container to stop"
                     docker rm breakremainder || echo "No existing container to remove"
-                    docker run -d --name breakremainder -p 8080:80 breakremainder:latest
+                    docker run -d --name breakremainder -p 9090:80 breakremainder:latest
                 '''
             }
         }
@@ -39,7 +39,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '✅ Deployment successful!'
-                echo '🌐 Open http://localhost:8080 in your browser to access BreakRemainder.'
+                echo '🌐 Open http://localhost:9090 in your browser to access BreakRemainder.'
                 bat 'docker ps'
             }
         }
@@ -54,3 +54,4 @@ pipeline {
         }
     }
 }
+
