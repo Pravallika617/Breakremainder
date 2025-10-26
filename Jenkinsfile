@@ -39,10 +39,16 @@ pipeline {
             steps {
                 echo '🚀 Deploying BreakRemainder to Kubernetes...'
                 bat '''
+                    echo Deleting old deployment (if exists)...
                     kubectl delete deployment breakremainder --ignore-not-found
-                    kubectl apply -f k8s\\deployment.yaml
-                    kubectl apply -f k8s\\service.yaml
+
+                    echo Applying new deployment and service...
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+
+                    echo Checking pod status...
                     kubectl get pods
+                    kubectl get svc
                 '''
             }
         }
