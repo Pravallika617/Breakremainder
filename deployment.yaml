@@ -13,7 +13,7 @@ spec:
         app: breakremainder
     spec:
       containers:
-      - name: breakremainder
-        image: pravallikas029/breakremainder:latest
-        ports:
-        - containerPort: 80
+        - name: breakremainder
+          image: pravallikas029/breakremainder:latest
+          ports:
+            - containerPort: 5000
