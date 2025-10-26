@@ -9,13 +9,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo '⚙️ Building the BreakRemainder application...'
-                bat 'echo Build stage completed successfully.'
-            }
-        }
-
         stage('Docker Build') {
             steps {
                 echo '🐳 Building Docker image for BreakRemainder...'
@@ -28,38 +21,24 @@ pipeline {
                 echo '📦 Pushing image to Docker Hub...'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-pass', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat '''
-                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        echo === Logging in to Docker Hub ===
+                        echo %DOCKER_USER%
+                        docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                        
+                        echo === Pushing image ===
                         docker push %DOCKER_USER%/breakremainder:latest
                     '''
                 }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                echo '🚀 Deploying BreakRemainder to Kubernetes...'
-                bat '''
-                    echo Deleting old deployment (if exists)...
-                    kubectl delete deployment breakremainder --ignore-not-found
-
-                    echo Applying new deployment and service...
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
-
-                    echo Checking pod status...
-                    kubectl get pods
-                    kubectl get svc
-                '''
             }
         }
     }
 
     post {
         success {
-            echo '🎉 Pipeline executed and deployed successfully!'
+            echo '🎉 Image built and pushed successfully to Docker Hub!'
         }
         failure {
-            echo '❌ Pipeline failed — please check the logs for details.'
+            echo '❌ Pipeline failed. Please check the logs.'
         }
     }
 }
