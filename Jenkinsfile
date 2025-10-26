@@ -22,7 +22,8 @@ pipeline {
             steps {
                 script {
                     echo "🛠️ Building Docker image..."
-                    sh 'docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE:latest .'
+                    // ✅ Use 'bat' instead of 'sh' for Windows
+                    bat "docker build -t %DOCKERHUB_USERNAME%/%DOCKER_IMAGE%:latest ."
                 }
             }
         }
@@ -33,9 +34,10 @@ pipeline {
                     echo "📦 Pushing Docker image to Docker Hub..."
                 }
                 withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh """
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push $DOCKER_USER/$DOCKER_IMAGE:latest
+                    // ✅ Windows command format
+                    bat """
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker push %DOCKER_USER%/%DOCKER_IMAGE%:latest
                     """
                 }
             }
@@ -45,8 +47,9 @@ pipeline {
             steps {
                 script {
                     echo "🚀 Deploying to Kubernetes..."
-                    sh 'kubectl apply -f k8s/deployment.yaml'
-                    sh 'kubectl apply -f k8s/service.yaml'
+                    // ✅ Use 'bat' instead of 'sh'
+                    bat "kubectl apply -f k8s\\deployment.yaml"
+                    bat "kubectl apply -f k8s\\service.yaml"
                 }
             }
         }
