@@ -12,7 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo "📂 Cloning BreakRemainder repository..."
-                git branch: 'main', 
+                git branch: 'master', 
                     url: 'https://github.com/Pravallika617/Breakremainder.git',
                     credentialsId: "${GIT_CREDENTIALS_ID}"
             }
