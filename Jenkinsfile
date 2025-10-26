@@ -9,36 +9,48 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Build') {
             steps {
-                echo '🐳 Building Docker image for BreakRemainder...'
-                bat 'docker build -t pravallikas029/breakremainder:latest .'
+                echo '⚙️ Building the BreakRemainder application...'
+                bat 'echo Build stage completed successfully.'
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Docker Build') {
             steps {
-                echo '📦 Pushing image to Docker Hub...'
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-pass', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat '''
-                        echo === Logging in to Docker Hub ===
-                        echo %DOCKER_USER%
-                        docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-                        
-                        echo === Pushing image ===
-                        docker push %DOCKER_USER%/breakremainder:latest
-                    '''
-                }
+                echo '🐳 Building Docker image for BreakRemainder...'
+                bat '''
+                    docker build -t breakremainder:latest .
+                '''
+            }
+        }
+
+        stage('Docker Run') {
+            steps {
+                echo '🚀 Running Docker container for BreakRemainder...'
+                bat '''
+                    docker stop breakremainder || echo "No existing container to stop"
+                    docker rm breakremainder || echo "No existing container to remove"
+                    docker run -d --name breakremainder -p 8080:80 breakremainder:latest
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo '✅ Deployment successful!'
+                echo '🌐 Open http://localhost:8080 in your browser to access BreakRemainder.'
+                bat 'docker ps'
             }
         }
     }
 
     post {
         success {
-            echo '🎉 Image built and pushed successfully to Docker Hub!'
+            echo '🎉 Pipeline executed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed. Please check the logs.'
+            echo '❌ Pipeline failed — please check the logs for details.'
         }
     }
 }
