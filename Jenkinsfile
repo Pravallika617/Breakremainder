@@ -1,66 +1,56 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = 'breakreminder-app'
-        DOCKERHUB_USERNAME = 'pravallikas029'          // ✅ your Docker Hub username
-        DOCKER_CREDENTIALS_ID = 'dockerhub-pass'       // ✅ Jenkins credentials ID for DockerHub
-        GIT_CREDENTIALS_ID = 'github-token'            // ✅ Jenkins credentials ID for GitHub PAT
-    }
-
     stages {
         stage('Clone Repository') {
             steps {
-                echo "📂 Cloning BreakRemainder repository..."
-                git branch: 'master', 
-                    url: 'https://github.com/Pravallika617/Breakremainder.git',
-                    credentialsId: "${GIT_CREDENTIALS_ID}"
+                echo '📂 Cloning the BreakRemainder repository...'
+                git branch: 'master', url: 'https://github.com/Pravallika617/Breakremainder.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                script {
-                    echo "🛠️ Building Docker image..."
-                    // ✅ Use 'bat' instead of 'sh' for Windows
-                    bat "docker build -t %DOCKERHUB_USERNAME%/%DOCKER_IMAGE%:latest ."
-                }
+                echo '⚙️ Building the BreakRemainder application...'
+                bat 'echo Build stage completed successfully.'
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Docker Build') {
             steps {
-                script {
-                    echo "📦 Pushing Docker image to Docker Hub..."
-                }
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    // ✅ Windows command format
-                    bat """
-                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                    docker push %DOCKER_USER%/%DOCKER_IMAGE%:latest
-                    """
-                }
+                echo '🐳 Building Docker image for BreakRemainder...'
+                bat '''
+                    docker build -t breakremainder:latest .
+                '''
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Docker Run') {
             steps {
-                script {
-                    echo "🚀 Deploying to Kubernetes..."
-                    // ✅ Use 'bat' instead of 'sh'
-                    bat "kubectl apply -f k8s\\deployment.yaml"
-                    bat "kubectl apply -f k8s\\service.yaml"
-                }
+                echo '🚀 Running Docker container for BreakRemainder...'
+                bat '''
+                    docker stop breakremainder || echo "No existing container to stop"
+                    docker rm breakremainder || echo "No existing container to remove"
+                    docker run -d --name breakremainder -p 8080:80 breakremainder:latest
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo '✅ Deployment successful!'
+                echo '🌐 Open http://localhost:8080 in your browser to access BreakRemainder.'
+                bat 'docker ps'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Pipeline completed successfully!"
+            echo '🎉 Pipeline executed successfully!'
         }
         failure {
-            echo "❌ Pipeline failed. Check logs!"
+            echo '❌ Pipeline failed — please check the logs for details.'
         }
     }
 }
