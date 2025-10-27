@@ -5,9 +5,8 @@ metadata:
 spec:
   selector:
     app: breakremainder
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5000
-      nodePort: 30008
   type: NodePort
+  ports:
+    - port: 5000        # target port inside container
+      targetPort: 5000  # container port
+      nodePort: 30008   # accessible from host
