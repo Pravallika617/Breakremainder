@@ -1,19 +1,13 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: breakremainder
+  name: breakremainder-service
 spec:
-  replicas: 1
+  type: NodePort
   selector:
-    matchLabels:
-      app: breakremainder
-  template:
-    metadata:
-      labels:
-        app: breakremainder
-    spec:
-      containers:
-        - name: breakremainder
-          image: pravallikas029/breakremainder:latest
-          ports:
-            - containerPort: 5000
+    app: breakremainder
+  ports:
+    - protocol: TCP
+      port: 80          
+      targetPort: 5000 
+      nodePort: 30008   
